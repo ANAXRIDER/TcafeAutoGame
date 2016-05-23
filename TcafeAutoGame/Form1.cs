@@ -177,7 +177,8 @@ namespace TcafeAutoGame
                             oldString = "";
                         }
                         else if (22 <= tryCount)
-                        {                            
+                        {
+                            skipTypingGame = true;
                             AddLogMsg(" <타자 게임 타임 오버 발생>");
                             AddLogMsg(" -- " + temp);
                             AddLogMsg(" -- " + oldString);
@@ -190,6 +191,7 @@ namespace TcafeAutoGame
                 {
                     if (30 <= tryCount)
                     {
+                        skipTypingGame = true;
                         AddLogMsg("오류가 발생되어 게임을 패스합니다.");                        
                         toNextPage = true;
                     }
@@ -384,7 +386,7 @@ namespace TcafeAutoGame
         {
             if (webBrowser1.Url.Equals(EditAddress.Text + "/tazza/"))
             {
-                AddLogMsg("타자게임 진행합입니다. ");
+                AddLogMsg("타자게임 진행합니다. ");
 
                 HtmlDocument doc = webBrowser1.Document;
                 foreach (HtmlElement ele in doc.All)
@@ -396,7 +398,7 @@ namespace TcafeAutoGame
                             webBrowser1.Refresh();
                             return;
                         }
-;
+
                         break;
                     }
                 }
