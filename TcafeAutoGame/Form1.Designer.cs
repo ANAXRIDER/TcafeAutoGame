@@ -136,7 +136,7 @@
             this.webBrowser1.TabStop = false;
             this.webBrowser1.Url = new System.Uri("https://twitter.com/tcafenet", System.UriKind.Absolute);
             this.webBrowser1.Visible = false;
-            this.webBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser1_DocumentCompleted);
+            this.webBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.CheckTwitterAddress);
             this.webBrowser1.ProgressChanged += new System.Windows.Forms.WebBrowserProgressChangedEventHandler(this.webBrowser1_ProgressChanged);
             // 
             // AttentionGameTimer
@@ -176,8 +176,8 @@
             this.MinimumSize = new System.Drawing.Size(306, 236);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "TcafeAutoGame v1.0";
-            this.Shown += new System.EventHandler(this.Form1_Shown);
+            this.Text = "TcafeAutoGame v1.1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
