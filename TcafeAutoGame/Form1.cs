@@ -76,6 +76,7 @@ namespace TcafeAutoGame
                 if (-1 != completeIdx)
                 {
                     AddLogMsg("이미 출석게임을 완료한 상태입니다.");
+                    skipAttentionGame = false;
                     isSkipGame = true;
                 }
                 else if ((-1 == readyIdx) && (-1 == completeIdx))
@@ -374,7 +375,7 @@ namespace TcafeAutoGame
             elem = elems[4];
             string str1 = elem.InnerHtml;
 
-            if (-1 != str1.IndexOf("오늘은"))
+            if (-1 == str1.IndexOf("오늘은"))
             {
                 skipAttentionGame = true;
             }
@@ -428,7 +429,7 @@ namespace TcafeAutoGame
                 }
 
                 AddLogMsg("--[결 과]-------------------------");
-                if (skipAttentionGame || skipTypingGame)
+                if (skipAttentionGame && skipTypingGame)
                 {
                     AddLogMsg(" -- 출석 게임과 타자 게임을 완료하지 못 했습니다.");
                 }
