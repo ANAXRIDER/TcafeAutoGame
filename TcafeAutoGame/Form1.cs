@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace TcafeAutoGame
 {
@@ -103,27 +104,30 @@ namespace TcafeAutoGame
                 
                 tryCount = 0;
 
-                int i = 0;
                 int dalInCount = 0;
                 foreach (HtmlElement ele in doc.All)
                 {
-                    if (ele.GetAttribute("className") == "pnt_money")
+                    if (null == ele.InnerText)
                     {
-                        ++i;
-                        if (9 == i)
+                        continue;
+                    }
+                    
+                    if ((ele.GetAttribute("className") == "tbl_type") && (0 <= ele.InnerText.IndexOf("내 기록")))
+                    {
+                        string text = ele.InnerText;
+                        Match m = Regex.Match(text, @"[0-9]+회");                        
+                        dalInCount = int.Parse(m.Value.Replace("회", ""));
+                        attentionGameTotal = dalInCount;
+                        for (m = m.NextMatch(); m.Success; m = m.NextMatch())
                         {
-                            dalInCount = int.Parse(ele.InnerText.Replace("회", ""));
-                            attentionGameTotal = dalInCount;
+                            attentionGameTotal += int.Parse(m.Value.Replace("회", ""));
                         }
-                        else if ((10 <= i) && (14 >= i))
-                        {
-                            attentionGameTotal += int.Parse(ele.InnerText.Replace("회", ""));
-                            break;
-                        }
+
+                        break;
                     }
                 }
 
-                int goal = ((dalInCount * 100 / attentionGameTotal) < 25) ? 1 : 100;
+                int goal = ((dalInCount * 100 / Math.Max(attentionGameTotal, 1)) < 25) ? 1 : 100;
                 if (1 == goal)
                     AddLogMsg("달인(1)을 노립니다.");
                 else
@@ -370,14 +374,21 @@ namespace TcafeAutoGame
         {
             tryCount = 0;
             HtmlDocument doc = webBrowser1.Document;
-            HtmlElement elem;
             HtmlElementCollection elems = doc.GetElementsByTagName("center");
-            elem = elems[4];
-            string str1 = elem.InnerHtml;
 
-            if (-1 == str1.IndexOf("오늘은"))
+            skipAttentionGame = true;
+            foreach (HtmlElement elem in elems)
             {
-                skipAttentionGame = true;
+                if (null == elem.InnerHtml)
+                {
+                    continue;
+                }
+
+                if (-1 != elem.InnerHtml.IndexOf("오늘은"))
+                {
+                    skipAttentionGame = false;
+                    break;
+                }
             }
 
             webBrowser1.DocumentCompleted -= this.CheckAttentionGame;
@@ -408,9 +419,13 @@ namespace TcafeAutoGame
                 webBrowser1.DocumentCompleted += this.ShowResult;
             }
             else
-            {
+            {    
+                if (0 < tryCount)
+                {
+                    AddLogMsg("타자게임 접속 시도중(" + tryCount + ")");
+                }
+
                 ++tryCount;
-                AddLogMsg("타자게임 접속 시도중(" + tryCount + ")");
                 webBrowser1.Navigate(EditAddress.Text + "/tazza/");
             }
         }
@@ -463,7 +478,7 @@ namespace TcafeAutoGame
             {
                 if (false == TypingGameTimer.Enabled)
                 {
-                    TypingGameTimer.Interval = 100;
+                    TypingGameTimer.Interval = 50;
                     TypingGameTimer.Start();
                 }
             }
