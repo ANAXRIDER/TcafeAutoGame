@@ -41,8 +41,8 @@ namespace TcafeAutoGame
             oldString = "";
             initPoint = 0;
             Random r = new Random();
-            double n = r.Next() / 100000000000000;
-            attentionAddr = "/bbs/login_check.php?" + n + "&url=%2F&mb_id=" + EditID.Text + "&mb_password=" + EditPassword.Text + "&x=0&y=0";
+            double n = r.Next() / 100000000000000;            
+            attentionAddr = "/bbs/login_check.php?" + n + "&mb_id=" + EditID.Text + "&mb_password=" + EditPassword.Text;
             CtrlBrowser.SupressCookiePersist();
             webBrowser1.DocumentCompleted += LoginTcafe;
             webBrowser1.Navigate(EditAddress.Text);
