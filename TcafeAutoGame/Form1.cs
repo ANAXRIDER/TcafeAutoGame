@@ -22,13 +22,15 @@ namespace TcafeAutoGame
         private int typingCount;
         private int initPoint;        
         private string attentionAddr;
-        private string oldString;                    
+        private string oldString;
         private JavaScripts js;
+        private Config config;
 
         public Form1()
         {
             InitializeComponent();
             js = new JavaScripts();
+            config = new Config();
             initPoint = 0;
         }
 
@@ -40,6 +42,7 @@ namespace TcafeAutoGame
             typingCount = 11;
             oldString = "";
             initPoint = 0;
+            tryCount = 0;
             Random r = new Random();
             double n = r.Next() / 100000000000000;            
             attentionAddr = "/bbs/login_check.php?" + n + "&mb_id=" + EditID.Text + "&mb_password=" + EditPassword.Text;
@@ -83,9 +86,9 @@ namespace TcafeAutoGame
                 else if ((-1 == readyIdx) && (-1 == completeIdx))
                 {
                     ++tryCount;
-                    if (5 <= tryCount)
+                    if (10 <= tryCount)
                     {
-                        isSkipGame = true;                        
+                        isSkipGame = true;
                     }
                     else
                     {
@@ -127,6 +130,7 @@ namespace TcafeAutoGame
                     }
                 }
 
+                AddLogMsg("달인 / 총 횟수 = " + dalInCount + " / " + attentionGameTotal);
                 int goal = ((dalInCount * 100 / Math.Max(attentionGameTotal, 1)) < 25) ? 1 : 100;
                 if (1 == goal)
                     AddLogMsg("달인(1)을 노립니다.");
@@ -218,9 +222,9 @@ namespace TcafeAutoGame
             webBrowser1.Stop();
             FormShowTimer.Enabled = false;
             EditAddress.Enabled = true;
-            AddLogMsg("주소 확인애 실패(타임오버) 했습니다.");
+            AddLogMsg("주소 확인 실패(타임오버) 했습니다.");
             AddLogMsg("기본 주소로 대체합니다.");
-            EditAddress.Text = "http://tcafeh.com";
+            EditAddress.Text = config.URL;
             SetEnabledControls();
         }
 
@@ -281,6 +285,8 @@ namespace TcafeAutoGame
             webBrowser1.DocumentCompleted += InjectAlertMsgBlock;
             AddLogMsg("트위터에서 Tcafe 주소를 확인중입니다.");
             AddLogMsg("잠시만 기다려주세요.");
+            EditID.Text = config.ID;
+            EditPassword.Text = config.PASSWORD;
         }
 
         private void InjectAlertMsgBlock(object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -305,10 +311,10 @@ namespace TcafeAutoGame
                     {
                         EditAddress.Text = "http://" + temp;
                     }
-
-                    SetEnabledControls();
+                    
                     AddLogMsg(EditID.Text + "Tcafe 주소 확인 완료하였습니다.");
-                    webBrowser1.DocumentCompleted -= this.CheckTwitterAddress;
+                    webBrowser1.DocumentCompleted -= this.CheckTwitterAddress;                    
+                    SetEnabledControls();
                     break;
                 }
             }
@@ -329,20 +335,42 @@ namespace TcafeAutoGame
         {
             if (webBrowser1.Url.Equals(EditAddress.Text + "/?udt=1"))
             {
-                AddLogMsg("로그인 성공했습니다.");
+                AddLogMsg("로그인 성공했습니다.");                
                 initPoint = GetAccountPoint();
-                tryCount = 0;
+                tryCount = 0;                
+                config.Save(EditAddress.Text, EditID.Text, EditPassword.Text);                
                 webBrowser1.DocumentCompleted -= this.CheckLogin;
-                webBrowser1.DocumentCompleted += this.MoveAttentionGamePage;
+                webBrowser1.DocumentCompleted += this.MoveAttentionGamePage;                
                 webBrowser1.Navigate(EditAddress.Text + "/attendance/attendance.php?3");
                 AddLogMsg("출석게임하러 이동 합니다.");
             }
             else
             {
-                if (0 < tryCount)
-                    AddLogMsg("로그인 시도 중(" + tryCount + ") ");
-
                 ++tryCount;
+
+                HtmlElement doc = webBrowser1.Document.Body;
+                if (null == doc)
+                    return;
+
+                if (doc.InnerText.Length < 30)
+                {
+                    string temp = doc.InnerText.Replace(" ", "");
+                    if (temp == "일일로그인횟수를초과하였습니다.")
+                    {
+                        AddLogMsg("일일 로그인 횟수를 초과하였습니다.");
+                        webBrowser1.DocumentCompleted -= this.CheckLogin;
+                        SetEnabledControls();
+                        return;
+                    }
+                }
+
+                if (2 <= tryCount)
+                {
+                    AddLogMsg("로그인 실패했습니다.");
+                    webBrowser1.DocumentCompleted -= this.CheckLogin;
+                    SetEnabledControls();
+                    return;
+                }
             }
         }
 
