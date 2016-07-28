@@ -176,7 +176,7 @@
             this.MinimumSize = new System.Drawing.Size(306, 236);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "TcafeAutoGame v1.1.4";
+            this.Text = "TcafeAutoGame v1.1.5";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
