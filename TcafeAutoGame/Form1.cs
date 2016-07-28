@@ -296,12 +296,12 @@ namespace TcafeAutoGame
 
         private void CheckTwitterAddress(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            FormShowTimer.Enabled = false;
+            FormShowTimer.Stop();
             HtmlDocument doc = webBrowser1.Document;
             foreach (HtmlElement ele in doc.All)
             {
                 if (ele.GetAttribute("className") == "js-display-url")
-                {
+                {                    
                     string temp = ele.InnerText.ToString().ToLower();
                     if (-1 != temp.IndexOf("http", 0))
                     {
@@ -312,12 +312,13 @@ namespace TcafeAutoGame
                         EditAddress.Text = "http://" + temp;
                     }
                     
-                    AddLogMsg(EditID.Text + "Tcafe 주소 확인 완료하였습니다.");
+                    AddLogMsg("Tcafe 주소 확인 완료하였습니다.");
                     webBrowser1.DocumentCompleted -= this.CheckTwitterAddress;                    
                     SetEnabledControls();
-                    break;
+                    return;
                 }
             }
+            FormShowTimer.Start();
         }
 
         private void LoginTcafe(object sender, WebBrowserDocumentCompletedEventArgs e)
