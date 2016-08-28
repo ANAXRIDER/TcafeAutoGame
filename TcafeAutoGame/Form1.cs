@@ -118,8 +118,12 @@ namespace TcafeAutoGame
                     if ((ele.GetAttribute("className") == "tbl_type") && (0 <= ele.InnerText.IndexOf("내 기록")))
                     {
                         string text = ele.InnerText;
-                        Match m = Regex.Match(text, @"[0-9]+회");                        
-                        dalInCount = int.Parse(m.Value.Replace("회", ""));
+                        Match m = Regex.Match(text, @"[0-9]+회");
+                        if (m.Success)
+                            dalInCount = int.Parse(m.Value.Replace("회", ""));
+                        else
+                            dalInCount = 0;
+
                         attentionGameTotal = dalInCount;
                         for (m = m.NextMatch(); m.Success; m = m.NextMatch())
                         {
